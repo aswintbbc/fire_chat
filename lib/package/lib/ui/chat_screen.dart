@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../models/message.dart';
 import '../services/chat_service.dart';
 import 'message_bubble.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -31,11 +34,60 @@ class _ChatScreenState extends State<ChatScreen> {
   final GlobalKey<RefreshIndicatorState> _refreshKey =
       GlobalKey<RefreshIndicatorState>();
 
+  FlutterSoundRecorder? _audioRecorder;
+  bool _isRecording = false;
+  String? _audioPath;
+
   @override
   void initState() {
     super.initState();
     _fetchInitialMessages();
     _markMessagesAsRead();
+    _initRecorder();
+  }
+
+Future<void> _initRecorder() async {
+  _audioRecorder = FlutterSoundRecorder();
+
+  var status = await Permission.microphone.request();
+  if (status != PermissionStatus.granted) {
+    print("❌ Microphone permission not granted");
+    return;
+  }
+
+  await _audioRecorder!.openRecorder();
+}
+  /// Start recording audio
+  Future<void> _startRecording() async {
+    final dir = await getApplicationDocumentsDirectory();
+    _audioPath =
+        '${dir.path}/audio_${DateTime.now().millisecondsSinceEpoch}.aac';
+    await _audioRecorder!.startRecorder(toFile: _audioPath);
+    setState(() => _isRecording = true);
+  }
+
+  /// Stop recording audio
+  Future<void> _stopRecording() async {
+    await _audioRecorder!.stopRecorder();
+    setState(() => _isRecording = false);
+    _sendAudioMessage();
+  }
+
+  /// Send an audio message
+  void _sendAudioMessage() {
+    if (_audioPath == null) return;
+
+    Message message = Message(
+      messageId: DateTime.now().millisecondsSinceEpoch.toString(),
+      senderId: widget.senderId,
+      receiverId: widget.receiverId,
+      text: '',
+      mediaUrl: _audioPath,
+      timestamp: DateTime.now(),
+      status: MessageStatus.unread,
+    );
+
+    _chatService.sendMessage(message);
   }
 
   /// Fetch the first batch of messages with real-time updates
@@ -135,6 +187,11 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
+                IconButton(
+                  icon: Icon(_isRecording ? Icons.stop : Icons.mic,
+                      color: Colors.red),
+                  onPressed: _isRecording ? _stopRecording : _startRecording,
+                ),
                 Expanded(
                   child: TextField(
                     controller: _messageController,
