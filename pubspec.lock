@@ -41,6 +41,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  chaty:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "v1.0.0"
+      resolved-ref: a7adb4525772caef1857299446e4d02bcef95566
+      url: "https://github.com/aswintbbc/chaty.git"
+    source: git
+    version: "0.0.1"
   clock:
     dependency: transitive
     description:

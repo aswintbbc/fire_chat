@@ -1,6 +1,6 @@
-import 'package:fire_chat/package/lib/services/chat_service.dart';
-import 'package:fire_chat/package/lib/services/notification_services.dart';
-import 'package:fire_chat/package/lib/ui/chat_screen.dart';
+import 'package:chaty/services/chat_service.dart';
+import 'package:chaty/services/notification_services.dart';
+import 'package:chaty/ui/chat_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
