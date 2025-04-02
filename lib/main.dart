@@ -1,9 +1,10 @@
-import 'package:fire_chat/pkg/lib/models/message.dart';
-import 'package:fire_chat/pkg/lib/services/notification_services.dart';
-import 'package:fire_chat/pkg/lib/ui/chat_screen.dart';
+import 'package:chaty/models/message.dart';
+import 'package:chaty/services/notification_services.dart';
+import 'package:chaty/ui/chat_list_screen.dart';
+import 'package:chaty/ui/chat_screen.dart';
+import 'package:chaty/utils/extensions.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:voice_message_package/voice_message_package.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +40,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _user1Controller = TextEditingController();
   final TextEditingController _user2Controller = TextEditingController();
 
+  final textEditingController = TextEditingController();
+
+  final ValueNotifier<DateTime> _lastSeen = ValueNotifier(DateTime.now());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,6 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatScreen(
+                      getLastSeen: (lastSeen) {
+                        _lastSeen.value = lastSeen.log('Last seen');
+                      },
                       intialChatLimit: 15,
                       senderId: _user1Controller.text,
                       receiverId: _user2Controller.text,
@@ -75,34 +82,151 @@ class _HomeScreenState extends State<HomeScreen> {
                           {required isMe, required message}) {
                         return _MessageBubble(isMe: isMe, message: message);
                       },
+                      sendMessageBuilder: (context,
+                          {required sendMediaMessage, required sendMessage}) {
+                        return Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.camera_alt),
+                              onPressed: () async {},
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: TextField(
+                                decoration: const InputDecoration(
+                                  hintText: "Type a message",
+                                ),
+                                controller: textEditingController,
+                                onSubmitted: (value) {
+                                  sendMessage(value);
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            GestureDetector(
+                              onTap: () {
+                                sendMessage(textEditingController.text);
+                              },
+                              onLongPress: () async {
+                                for (int i = 0; i < 100; i++) {
+                                  Future.delayed(
+                                    const Duration(seconds: 1),
+                                    () {
+                                      sendMessage("Message $i");
+                                    },
+                                  );
+                                }
+                              },
+                              child: const Icon(Icons.send),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 );
               },
               child: const Text("Start Chat"),
             ),
-            VoiceMessageView(
-              controller: VoiceController(
-                isFile: false,
-                maxDuration: Duration(seconds: 10),
-                audioSrc:
-                    'https://filesamples.com/samples/audio/aac/sample4.aac',
-                onComplete: () {
-                  /// do something on complete
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChatListScreen(
+                                currentUserId: _user1Controller.text,
+                                chatTileBuilder: ({required chatSummary}) {
+                                  return ListTile(
+                                    leading: chatSummary.unreadCount > 0
+                                        ? CircleAvatar(
+                                            backgroundColor: Colors.red,
+                                            radius: 6,
+                                          )
+                                        : SizedBox(), // ✅ Show dot if unreadCount > 0,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ChatScreen(
+                                            intialChatLimit: 15,
+                                            senderId: _user1Controller.text,
+                                            receiverId: chatSummary.otherUserId,
+                                            messageBubbleBuilder: (
+                                                {required isMe,
+                                                required message}) {
+                                              return _MessageBubble(
+                                                  isMe: isMe, message: message);
+                                            },
+                                            sendMessageBuilder: (context,
+                                                {required sendMediaMessage,
+                                                required sendMessage}) {
+                                              return Row(
+                                                children: [
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                        Icons.camera_alt),
+                                                    onPressed: () async {},
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: TextField(
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        hintText:
+                                                            "Type a message",
+                                                      ),
+                                                      controller:
+                                                          textEditingController,
+                                                      onSubmitted: (value) {
+                                                        sendMessage(value);
+                                                      },
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  GestureDetector(
+                                                    onLongPress: () async {
+                                                      for (int i = 0;
+                                                          i < 100;
+                                                          i++) {
+                                                        Future.delayed(
+                                                          const Duration(
+                                                              seconds: 1),
+                                                          () {
+                                                            sendMessage(
+                                                                "Message $i");
+                                                          },
+                                                        );
+                                                      }
+                                                    },
+                                                    child: IconButton(
+                                                      icon: const Icon(
+                                                          Icons.send),
+                                                      onPressed: () {
+                                                        sendMessage(
+                                                            textEditingController
+                                                                .text);
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    title: Text(chatSummary.otherUserId),
+                                    subtitle: Text(chatSummary.lastMessage),
+                                    trailing: Text(
+                                      chatSummary.lastMessageTime
+                                          .toLocal()
+                                          .timeAgo(),
+                                    ),
+                                  );
+                                },
+                              )));
                 },
-                onPause: () {
-                  /// do something on pause
-                },
-                onPlaying: () {
-                  /// do something on playing
-                },
-                onError: (err) {
-                  /// do somethin on error
-                },
-              ),
-              innerPadding: 12,
-              cornerRadius: 20,
-            ),
+                child: Text('list of messages')),
           ],
         ),
       ),
@@ -146,7 +270,7 @@ class _MessageBubble extends StatelessWidget {
               ),
             const SizedBox(height: 5),
             Text(
-              message.timestamp.toLocal().toString(),
+              message.timestamp.toLocal().timeAgo(),
               style: const TextStyle(fontSize: 12),
             ),
           ],
