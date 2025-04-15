@@ -1,8 +1,12 @@
-import 'package:chaty/models/message.dart';
+import 'dart:async';
+
 import 'package:chaty/services/notification_services.dart';
 import 'package:chaty/ui/chat_list_screen.dart';
 import 'package:chaty/ui/chat_screen.dart';
 import 'package:chaty/utils/extensions.dart';
+import 'package:chaty/utils/selection_controller.dart';
+import 'package:fire_chat/chat_view_screen.dart';
+import 'package:fire_chat/message_bubble.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -41,8 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _user2Controller = TextEditingController();
 
   final textEditingController = TextEditingController();
-
-  final ValueNotifier<DateTime> _lastSeen = ValueNotifier(DateTime.now());
+  SelectedController selectedController = SelectedController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,59 +74,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ChatScreen(
-                      getLastSeen: (lastSeen) {
-                        _lastSeen.value = lastSeen.log('Last seen');
-                      },
-                      intialChatLimit: 15,
-                      senderId: _user1Controller.text,
-                      receiverId: _user2Controller.text,
-                      messageBubbleBuilder: (
-                          {required isMe, required message}) {
-                        return _MessageBubble(isMe: isMe, message: message);
-                      },
-                      sendMessageBuilder: (context,
-                          {required sendMediaMessage, required sendMessage}) {
-                        return Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.camera_alt),
-                              onPressed: () async {},
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: TextField(
-                                decoration: const InputDecoration(
-                                  hintText: "Type a message",
-                                ),
-                                controller: textEditingController,
-                                onSubmitted: (value) {
-                                  sendMessage(value);
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            GestureDetector(
-                              onTap: () {
-                                sendMessage(textEditingController.text);
-                              },
-                              onLongPress: () async {
-                                for (int i = 0; i < 100; i++) {
-                                  Future.delayed(
-                                    const Duration(seconds: 1),
-                                    () {
-                                      sendMessage("Message $i");
-                                    },
-                                  );
-                                }
-                              },
-                              child: const Icon(Icons.send),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
+                      builder: (context) => ChatViewScreen(
+                            user1: _user1Controller.text,
+                            user2: _user2Controller.text,
+                          )),
                 );
               },
               child: const Text("Start Chat"),
@@ -134,13 +88,29 @@ class _HomeScreenState extends State<HomeScreen> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => ChatListScreen(
+                                getnumberOfusers: (numberOfusers) {
+                                  numberOfusers.log("Number of users");
+                                },
                                 currentUserId: _user1Controller.text,
                                 chatTileBuilder: ({required chatSummary}) {
                                   return ListTile(
-                                    leading: chatSummary.unreadCount > 0
+                                    leading: (chatSummary.unreadMessageCount[
+                                                        _user1Controller
+                                                            .text] ??
+                                                    0)
+                                                .log(_user1Controller.text) >
+                                            0
                                         ? CircleAvatar(
                                             backgroundColor: Colors.red,
-                                            radius: 6,
+                                            radius: 10,
+                                            child: Text(
+                                              chatSummary.unreadMessageCount[
+                                                      _user1Controller.text]
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12),
+                                            ),
                                           )
                                         : SizedBox(), // ✅ Show dot if unreadCount > 0,
                                     onTap: () {
@@ -151,66 +121,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                             intialChatLimit: 15,
                                             senderId: _user1Controller.text,
                                             receiverId: chatSummary.otherUserId,
-                                            messageBubbleBuilder: (
-                                                {required isMe,
-                                                required message}) {
-                                              return _MessageBubble(
-                                                  isMe: isMe, message: message);
-                                            },
-                                            sendMessageBuilder: (context,
-                                                {required sendMediaMessage,
-                                                required sendMessage}) {
-                                              return Row(
-                                                children: [
-                                                  IconButton(
-                                                    icon: const Icon(
-                                                        Icons.camera_alt),
-                                                    onPressed: () async {},
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Expanded(
-                                                    child: TextField(
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        hintText:
-                                                            "Type a message",
-                                                      ),
-                                                      controller:
-                                                          textEditingController,
-                                                      onSubmitted: (value) {
-                                                        sendMessage(value);
-                                                      },
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  GestureDetector(
-                                                    onLongPress: () async {
-                                                      for (int i = 0;
-                                                          i < 100;
-                                                          i++) {
-                                                        Future.delayed(
-                                                          const Duration(
-                                                              seconds: 1),
-                                                          () {
-                                                            sendMessage(
-                                                                "Message $i");
-                                                          },
-                                                        );
-                                                      }
-                                                    },
-                                                    child: IconButton(
-                                                      icon: const Icon(
-                                                          Icons.send),
-                                                      onPressed: () {
-                                                        sendMessage(
-                                                            textEditingController
-                                                                .text);
-                                                      },
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
                                           ),
                                         ),
                                       );
@@ -227,52 +137,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               )));
                 },
                 child: Text('list of messages')),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({
-    required this.isMe,
-    required this.message,
-  });
-  final bool isMe;
-  final Message message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.symmetric(vertical: 5),
-        decoration: BoxDecoration(
-          color: isMe ? Colors.blue : Colors.grey[300],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (message.mediaUrl != null)
-              Image.network(
-                message.mediaUrl!,
-                width: 200,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-            if (message.text.isNotEmpty)
-              Text(
-                message.text,
-                style: const TextStyle(fontSize: 16),
-              ),
-            const SizedBox(height: 5),
-            Text(
-              message.timestamp.toLocal().timeAgo(),
-              style: const TextStyle(fontSize: 12),
-            ),
           ],
         ),
       ),
