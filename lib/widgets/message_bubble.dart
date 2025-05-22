@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:chaty/models/message.dart';
 import 'package:chaty/utils/extensions.dart';
 import 'package:easy_image_viewer/easy_image_viewer.dart';
-import 'package:fire_chat/audio_widget.dart';
+import 'package:fire_chat/widgets/audio_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;

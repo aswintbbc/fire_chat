@@ -1,9 +1,9 @@
 import 'package:chaty/models/message.dart';
 import 'package:chaty/ui/chat_screen.dart';
 import 'package:chaty/utils/extensions.dart';
-import 'package:fire_chat/audio_recorder_widget.dart';
-import 'package:fire_chat/file_picker.dart';
-import 'package:fire_chat/message_bubble.dart';
+import 'package:fire_chat/widgets/audio_recorder_widget.dart';
+import 'package:fire_chat/helper/file_picker.dart';
+import 'package:fire_chat/widgets/message_bubble.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
