@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:chaty/services/notification_services.dart';
 import 'package:chaty/ui/chat_list_screen.dart';
@@ -6,7 +5,6 @@ import 'package:chaty/ui/chat_screen.dart';
 import 'package:chaty/utils/extensions.dart';
 import 'package:chaty/utils/selection_controller.dart';
 import 'package:fire_chat/chat_view_screen.dart';
-import 'package:fire_chat/message_bubble.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
