@@ -132,6 +132,8 @@ Future<void> main() async {
 
 /// Entry point for the example application.
 class MessagingExampleApp extends StatelessWidget {
+  const MessagingExampleApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -166,6 +168,8 @@ String constructFCMPayload(String? token) {
 
 /// Renders the example application.
 class Application extends StatefulWidget {
+  const Application({super.key});
+
   @override
   State<StatefulWidget> createState() => _Application();
 }
@@ -352,7 +356,7 @@ class MetaCard extends StatelessWidget {
   final Widget _children;
 
   // ignore: public_member_api_docs
-  MetaCard(this._title, this._children);
+  const MetaCard(this._title, this._children, {super.key});
 
   @override
   Widget build(BuildContext context) {

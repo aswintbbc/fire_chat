@@ -11,6 +11,8 @@ import 'message.dart';
 
 /// Listens for incoming foreground messages and displays them in a list.
 class MessageList extends StatefulWidget {
+  const MessageList({super.key});
+
   @override
   State<StatefulWidget> createState() => _MessageList();
 }
