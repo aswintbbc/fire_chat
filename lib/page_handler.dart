@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 
 /// Handles the navigation and display logic for different pages based on the URI.
 class PageHandler {
-  static Widget? page;
+  static Widget page = SamplePage();
 
   static void handleUri(Uri? uri) {
     if (uri == null || uri.queryParameters.isEmpty) return;
