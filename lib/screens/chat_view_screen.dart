@@ -28,7 +28,10 @@ class _ChatViewScreenState extends State<ChatViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chat"),
+        title: Text(
+          '${widget.user1} - ${widget.user2}',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
               icon: const Icon(Icons.forward),
@@ -60,8 +63,13 @@ class _ChatViewScreenState extends State<ChatViewScreen> {
         messageBubbleBuilder: ({required isMe, required message}) {
           return MessageBubble(isMe: isMe, message: message);
         },
-        sendMessageBuilder: (context,
-            {required sendMediaMessage, required sendMessage}) {
+        enableTypingStatus: true,
+        sendMessageBuilder: (
+          context, {
+          required sendMediaMessage,
+          required sendMessage,
+          onTypingMessage,
+        }) {
           return Container(
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.all(10),
@@ -80,6 +88,7 @@ class _ChatViewScreenState extends State<ChatViewScreen> {
                 ),
                 Expanded(
                   child: TextField(
+                    onChanged: onTypingMessage,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       hintText: "Type a message",

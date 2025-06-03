@@ -1,5 +1,5 @@
+import 'package:chaty/chaty.dart';
 import 'package:chaty/ui/chat_list_screen.dart';
-import 'package:chaty/ui/chat_screen.dart';
 import 'package:chaty/utils/extensions.dart';
 import 'package:chaty/utils/selection_controller.dart';
 import 'package:fire_chat/screens/chat_view_screen.dart';
@@ -52,6 +52,16 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
+            Center(
+              child: Tooltip(
+                message: "Tap to select",
+                triggerMode: TooltipTriggerMode.tap,
+                showDuration: const Duration(seconds: 2),
+                child: FlutterLogo(
+                  size: 100,
+                ),
+              ),
+            ),
             TextField(
               controller: _user1Controller,
               decoration: const InputDecoration(
@@ -85,53 +95,75 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ChatListScreen(
-                                getnumberOfusers: (numberOfusers) {
-                                  numberOfusers.log("Number of users");
-                                },
-                                currentUserId: _user1Controller.text,
-                                chatTileBuilder: ({required chatSummary}) {
-                                  return ListTile(
-                                    leading: (chatSummary.unreadMessageCount[
-                                                        _user1Controller
-                                                            .text] ??
-                                                    0)
-                                                .log(_user1Controller.text) >
-                                            0
-                                        ? CircleAvatar(
-                                            backgroundColor: Colors.red,
-                                            radius: 10,
-                                            child: Text(
-                                              chatSummary.unreadMessageCount[
-                                                      _user1Controller.text]
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12),
-                                            ),
-                                          )
-                                        : SizedBox(), // ✅ Show dot if unreadCount > 0,
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ChatScreen(
-                                            intialChatLimit: 15,
-                                            senderId: _user1Controller.text,
-                                            receiverId: chatSummary.otherUserId,
-                                          ),
-                                        ),
+                          builder: (context) => Scaffold(
+                                appBar: AppBar(
+                                  title: StreamBuilder(
+                                    stream: ChatService.instance
+                                        .streamTotalUnreadMessagesForUser(
+                                            _user1Controller.text),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Text('Loading...');
+                                      }
+                                      if (snapshot.hasError) {
+                                        return Text('Error: ${snapshot.error}');
+                                      }
+                                      return Text(
+                                        'Chat List for ${snapshot.data}',
                                       );
                                     },
-                                    title: Text(chatSummary.otherUserId),
-                                    subtitle: Text(chatSummary.lastMessage),
-                                    trailing: Text(
-                                      chatSummary.lastMessageTime
-                                          .toLocal()
-                                          .timeAgo(),
-                                    ),
-                                  );
-                                },
+                                  ),
+                                ),
+                                body: ChatListScreen(
+                                  getnumberOfusers: (numberOfusers) {
+                                    numberOfusers.log("Number of users");
+                                  },
+                                  currentUserId: _user1Controller.text,
+                                  chatTileBuilder: ({required chatSummary}) {
+                                    return ListTile(
+                                      leading: (chatSummary.unreadMessageCount[
+                                                          _user1Controller
+                                                              .text] ??
+                                                      0)
+                                                  .log(_user1Controller.text) >
+                                              0
+                                          ? CircleAvatar(
+                                              backgroundColor: Colors.red,
+                                              radius: 10,
+                                              child: Text(
+                                                chatSummary.unreadMessageCount[
+                                                        _user1Controller.text]
+                                                    .toString(),
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12),
+                                              ),
+                                            )
+                                          : SizedBox(), // ✅ Show dot if unreadCount > 0,
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatScreen(
+                                              intialChatLimit: 15,
+                                              senderId: _user1Controller.text,
+                                              receiverId:
+                                                  chatSummary.otherUserId,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      title: Text(chatSummary.otherUserId),
+                                      subtitle: Text(chatSummary.lastMessage),
+                                      trailing: Text(
+                                        chatSummary.lastMessageTime
+                                            .toLocal()
+                                            .timeAgo(),
+                                      ),
+                                    );
+                                  },
+                                ),
                               )));
                 },
                 child: Text('list of messages')),

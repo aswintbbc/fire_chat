@@ -52,11 +52,12 @@ packages:
   chaty:
     dependency: "direct main"
     description:
-      name: chaty
-      sha256: dc39f7dd8dca4aa06a5ed0de98c0992d6ed8e0cbdcf86a332b5695b273bc7e64
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.5"
+      path: "."
+      ref: "1.1.30"
+      resolved-ref: "47b45e2583751dc9ccb14bcb4505b5d7d0fa125a"
+      url: "https://github.com/mindsterapps/chaty.git"
+    source: git
+    version: "1.0.9"
   clock:
     dependency: transitive
     description:
