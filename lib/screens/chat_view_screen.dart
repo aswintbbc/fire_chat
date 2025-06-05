@@ -4,6 +4,7 @@ import 'package:chaty/utils/extensions.dart';
 import 'package:fire_chat/widgets/audio_recorder_widget.dart';
 import 'package:fire_chat/helper/file_picker.dart';
 import 'package:fire_chat/widgets/message_bubble.dart';
+import 'package:fire_chat/widgets/typing_indicator.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -44,6 +45,11 @@ class _ChatViewScreenState extends State<ChatViewScreen> {
         ],
       ),
       body: ChatScreen(
+        backgroundColor: Colors.amber,
+        backgroundImage: DecorationImage(
+          image: NetworkImage('https://picsum.photos/400/800'),
+          fit: BoxFit.fitWidth,
+        ),
         onMessageSelected: ({
           required deselectAll,
           required List<Message> messages,
@@ -64,6 +70,7 @@ class _ChatViewScreenState extends State<ChatViewScreen> {
           return MessageBubble(isMe: isMe, message: message);
         },
         enableTypingStatus: true,
+        typingIdicationBuilder: () => TypingIndicator(),
         sendMessageBuilder: (
           context, {
           required sendMediaMessage,
@@ -74,6 +81,7 @@ class _ChatViewScreenState extends State<ChatViewScreen> {
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.all(10),
             decoration: BoxDecoration(
+              color: Colors.amber.shade100,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Colors.grey,
