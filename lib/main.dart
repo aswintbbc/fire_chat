@@ -1,21 +1,31 @@
-import 'package:fire_chat/screens/sample_page.dart';
 import 'package:flutter/material.dart';
+import 'package:clarity_flutter/clarity_flutter.dart';
 
-void main() async {
-  runApp(const MyApp());
+void main() {
+  final config = ClarityConfig(
+      projectId: "s5z6eo5zrt",
+      logLevel: LogLevel
+          .None // Note: Use "LogLevel.Verbose" value while testing to debug initialization issues.
+      );
+
+  runApp(ClarityWidget(
+    app: MyApp(),
+    clarityConfig: config,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Chaty Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Clarity Flutter SDK Example'),
+        ),
+        body: Center(
+          child: Text('Hello, Clarity!'),
+        ),
       ),
-      home: SamplePage(), // Initial screen
     );
   }
 }
