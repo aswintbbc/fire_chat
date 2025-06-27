@@ -1,2 +1,0 @@
-/Users/aswint/Documents/projects/fire_chat/android/app/.cxx/RelWithDebInfo/5r1k6h3d/armeabi-v7a/CMakeFiles/edit_cache.dir
-/Users/aswint/Documents/projects/fire_chat/android/app/.cxx/RelWithDebInfo/5r1k6h3d/armeabi-v7a/CMakeFiles/rebuild_cache.dir
