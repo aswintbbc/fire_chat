@@ -3,7 +3,6 @@ import 'package:chaty/ui/chat_list_screen.dart';
 import 'package:chaty/utils/extensions.dart';
 import 'package:chaty/utils/selection_controller.dart';
 import 'package:fire_chat/screens/chat_view_screen.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,33 +19,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final textEditingController = TextEditingController();
   SelectedController selectedController = SelectedController();
 
-  final appCheck = FirebaseAppCheck.instance;
-  String _eventToken = 'not yet';
-
   @override
   void initState() {
-    appCheck.onTokenChange.listen(setEventToken);
     super.initState();
-  }
-
-  void setEventToken(String? token) {
-    setState(() {
-      _eventToken = token ?? 'not yet';
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chaty Example $_eventToken"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                appCheck.getToken(true);
-              },
-              icon: Icon(Icons.ads_click))
-        ],
+        title: Text("Chaty Example"),
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.ads_click))],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -122,25 +105,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   currentUserId: _user1Controller.text,
                                   chatTileBuilder: ({required chatSummary}) {
                                     return ListTile(
-                                      leading: (chatSummary.unreadMessageCount[
-                                                          _user1Controller
-                                                              .text] ??
-                                                      0)
-                                                  .log(_user1Controller.text) >
-                                              0
-                                          ? CircleAvatar(
-                                              backgroundColor: Colors.red,
-                                              radius: 10,
-                                              child: Text(
-                                                chatSummary.unreadMessageCount[
-                                                        _user1Controller.text]
-                                                    .toString(),
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12),
-                                              ),
-                                            )
-                                          : SizedBox(), // ✅ Show dot if unreadCount > 0,
+                                      leading: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                            chatSummary.otherUserImageUrl ??
+                                                ''),
+                                        radius: 30,
+                                      ), // ✅ Show dot if unreadCount > 0,
                                       onTap: () {
                                         Navigator.push(
                                           context,
@@ -154,7 +124,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         );
                                       },
-                                      title: Text(chatSummary.otherUserId),
+                                      title: Row(
+                                        children: [
+                                          Text(chatSummary.otherUserId),
+                                          (chatSummary.unreadMessageCount[
+                                                              _user1Controller
+                                                                  .text] ??
+                                                          0)
+                                                      .log(_user1Controller
+                                                          .text) >
+                                                  0
+                                              ? CircleAvatar(
+                                                  backgroundColor: Colors.red,
+                                                  radius: 10,
+                                                  child: Text(
+                                                    chatSummary
+                                                        .unreadMessageCount[
+                                                            _user1Controller
+                                                                .text]
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 12),
+                                                  ),
+                                                )
+                                              : SizedBox()
+                                        ],
+                                      ),
                                       subtitle: Text(chatSummary.lastMessage),
                                       trailing: Text(
                                         chatSummary.lastMessageTime

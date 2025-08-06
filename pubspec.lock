@@ -53,11 +53,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "1.1.32"
-      resolved-ref: ef73b3e08bc24c55322f2d9050dc16a125ecde24
+      ref: image_and_name
+      resolved-ref: "1f2fd2f1ce2643c4e3c1394da18209c0f9ddaa66"
       url: "https://github.com/mindsterapps/chaty.git"
     source: git
-    version: "1.0.11"
+    version: "1.0.14"
   clock:
     dependency: transitive
     description:

@@ -31,11 +31,11 @@ dependencies:
   string_contains: ^2.4.0
   firebase_app_check: ^0.3.2+6
   chaty:
-    # 1.0.11
+    # ^1.0.14
     git:
       url: https://github.com/mindsterapps/chaty.git
-      # branch: features/gif
-      ref: 1.1.32
+      ref: image_and_name
+  # ref: 1.1.36
 
 dev_dependencies:
   flutter_test:
